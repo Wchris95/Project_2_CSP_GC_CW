@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Feb 25 13:54:11 2022
+
+@author: chriswang
+"""
+
+from csp import gen_constraint, csp
+from fileParser import parse_file
+from typing import Dict
+
+class GraphcoloringRestraint(gen_constraint):
+    """
+    Subclass of gen_constraint from csp to set up constraints
+    variables -> the vertices given to us from the file parser
+    domains -> our colors set as a list
+    assignments -> set up as a dict where vertex is the key and color is value
+    constraints -> the vertices that are adjacent to each other(edges) from
+    our file parser
+    """
+    def __init__(self, vertex1, vertex2):
+        super().__init__([vertex1, vertex2])
+        self.vertex1 = vertex1
+        self.vertex2 = vertex2
+        
+    def is_satisfied(self, assignment:Dict[int, int])-> bool:
+        #checks if either vertcies have been assigned a color if not then return true
+        if self.vertex1 not in assignment or self.vertex2 not in assignment:
+            return True
+        #if both have been assigned check that both are not the same color
+        return assignment[self.vertex1] != assignment[self.vertex2]
+
+class GraphColoringCSP(csp):
+    def __init__(self, edges: )

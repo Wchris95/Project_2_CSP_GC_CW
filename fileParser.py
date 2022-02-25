@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from typing import Generic, TypeVar, Dict, List, Optional, Tuple
 
 class file_parse:
     def __init__(self, filename: str)->None:
