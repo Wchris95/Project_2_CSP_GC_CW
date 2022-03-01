@@ -1,16 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Feb 25 13:54:11 2022
 
-@author: chriswang
-"""
-
+from typing import Tuple, List
 from csp import gen_constraint, csp
 from fileParser import parse_file
-from typing import Dict
+from typing import Dict, Set, List
 
-class GraphcoloringRestraint(gen_constraint):
+class GraphColoringRestraint(gen_constraint):
     """
     Subclass of gen_constraint from csp to set up constraints
     variables -> the vertices given to us from the file parser
@@ -31,5 +27,28 @@ class GraphcoloringRestraint(gen_constraint):
         #if both have been assigned check that both are not the same color
         return assignment[self.vertex1] != assignment[self.vertex2]
 
+    """
+    Subclass of csp to form graph coloring csp
+    inputs:
+        edges -> Edges we obtain from our text file
+        vertices -> the variables we create from the file parser module
+        colors -> initially a int value we use range(colors) to product domains
+        we then use add_constraint from the csp module with the use of the 
+        GraphcoloringRestraint subclass to form the vertex 1 and vertex 2 
+        We don't have to worry about repeating edges such as (1,5) (5,1) as
+        we filter these out within the file_parse module
+    """
 class GraphColoringCSP(csp):
-    def __init__(self, edges: )
+    def __init__(self, vertices: List, edges: Set[Tuple[int, int]], colors: int) -> None:
+        self.edges = edges
+        self.colors = colors
+        self.vertices = vertices 
+        domains = {vertex: list(range(colors)) for vertex in edges}
+        super().__init__(vertices, domains)
+        for v1, v2 in self.edges:
+            self.add_constraint(GraphColoringRestraint(v1,v2))
+            
+        @classmethod
+        def from_file(cls, filepath)->GraphColoringCSP:
+            fileData = parse_file(filepath=filepath)
+            

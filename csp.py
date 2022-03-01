@@ -45,8 +45,7 @@ class csp(ABC):
                 return False
         return True
     #def get_arc_constraint(self):
-        
-        
+          
     def backtrack(self, assignment: dict = {}):
         if len(assignment) == len(self.variables):
             return assignment

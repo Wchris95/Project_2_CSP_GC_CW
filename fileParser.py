@@ -7,7 +7,7 @@ class file_parse:
         self.parsed_data = self.parse_file()
         
     def parse_file(self):
-        edges = set()
+        edges = []
         colors = 0
         variables = list()
         data_dict = {}
@@ -17,8 +17,15 @@ class file_parse:
                     continue
                 if line.lower().split()[0].strip() == 'colors':
                     colors = int(line.split()[-1].strip())
+                #if tuple(sorted(int(b) for b in line.split(","))) not in edges:
                 else:
-                    edges.add(tuple(int(b) for b in line.split(",")))
+                    tempVar = tuple(sorted(int(b) for b in line.split(",")))
+                    if tempVar not in edges:                      
+                        edges.append(tuple(sorted(int(b) for b in line.split(","))))
+                    else:
+                        continue
+                #else:
+                 #   continue
         for edge in edges:
             if edge[0] not in variables:
                 variables.append(edge[0])
