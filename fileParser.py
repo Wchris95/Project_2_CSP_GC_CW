@@ -6,18 +6,18 @@ class file_parse:
         self.filename = filename
         self.parsed_data = self.parse_file()
         
-    def parse_file(self):
+    def parse_file(self) -> dict:
         edges = []
         colors = 0
-        variables = list()
+        vertices = list()
         data_dict = {}
-        with open(filename,"r") as file:
+        with open(self.filename,"r") as file:
             for line in file:
-                if line.split()[0].strip() == '#':
+                if line.split() == [] or line.split()[0] == '#':
                     continue
-                if line.lower().split()[0].strip() == 'colors':
+                if line.lower().split()[0] == 'colors':
                     colors = int(line.split()[-1].strip())
-                #if tuple(sorted(int(b) for b in line.split(","))) not in edges:
+                #set a tempvar to parse the edges if the edge is already in the edges list ignore the edge
                 else:
                     tempVar = tuple(sorted(int(b) for b in line.split(",")))
                     if tempVar not in edges:                      
@@ -27,15 +27,15 @@ class file_parse:
                 #else:
                  #   continue
         for edge in edges:
-            if edge[0] not in variables:
-                variables.append(edge[0])
-            if edge[1] not in variables:
-                variables.append(edge[1])
+            if edge[0] not in vertices:
+                vertices.append(edge[0])
+            if edge[1] not in vertices:
+                vertices.append(edge[1])
             else:
                 continue
         data_dict["colors"] = colors
         data_dict["edges"] = edges
-        data_dict["variables"] = variables
+        data_dict["vertices"] = vertices
         return data_dict
     
 if  __name__ == "__main__":

@@ -3,8 +3,9 @@
 
 from typing import Tuple, List
 from csp import gen_constraint, csp
-from fileParser import parse_file
-from typing import Dict, Set, List
+from fileParser import file_parse
+from typing import Dict, Set
+from time import time
 
 class GraphColoringRestraint(gen_constraint):
     """
@@ -43,12 +44,23 @@ class GraphColoringCSP(csp):
         self.edges = edges
         self.colors = colors
         self.vertices = vertices 
-        domains = {vertex: list(range(colors)) for vertex in edges}
+        domains = {vertex: list(range(colors)) for vertex in vertices}
         super().__init__(vertices, domains)
         for v1, v2 in self.edges:
             self.add_constraint(GraphColoringRestraint(v1,v2))
             
-        @classmethod
-        def from_file(cls, filepath)->GraphColoringCSP:
-            fileData = parse_file(filepath=filepath)
-            
+    @classmethod
+    def from_file(cls, filename) -> csp:
+        fileData = file_parse(filename=filename)
+        return cls(**fileData.parsed_data)
+
+if __name__ == "__main__":
+    start = time()
+    gc = GraphColoringCSP.from_file("gc_78317094521100.txt")
+    print(gc.domains)
+    end = time()
+    print("Parsing Time: ", end-start)
+    start = time()
+    assignment = gc.backtrack()
+    end = time()
+    print("Search time:", end-start)
