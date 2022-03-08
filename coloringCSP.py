@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Tuple, List
+from typing import Tuple, List, Union, Set
 from fileParser import file_parse
-from typing import Set, Tuple, List, Union
-from time import time
 from collections import defaultdict
 
 class GraphColoringRestraint:
@@ -40,7 +38,7 @@ class GraphColoringRestraint:
         we filter these out within the file_parse module
     """
 class GraphColoringCSP:
-    def __init__(self, vertices: List, edges: Union[List[Tuple[int, int]], Set[Tuple[int, int]]], colors: int, neighbors:dict=None) -> None:
+    def __init__(self, vertices: set, edges: Union[List[Tuple[int, int]], Set[Tuple[int, int]]], colors: int, neighbors:dict=None) -> None:
         self.edges = edges     
         self.constraints = defaultdict(list)
         self.colors = colors
@@ -48,6 +46,7 @@ class GraphColoringCSP:
         self.variables = vertices
         self.domains =  {vertex: list(range(colors)) for vertex in self.variables}
         self.curr_domains = self.domains
+        self.nassigns = 0
         for v1, v2 in self.edges:
             self.add_constraint(GraphColoringRestraint(v1,v2))
             
@@ -93,7 +92,7 @@ class GraphColoringCSP:
         """Rule out var = value"""
         self.curr_domains[var].remove(val)
         if removals is not None:
-            removals.append((var,val))
+            removals.append(var,val)
     
     def conflicted_num(self, current, var, val):
         count = 0
@@ -106,13 +105,18 @@ class GraphColoringCSP:
       
     def restore(self, removals):
         """Undo a supposition and all inferences on it"""
-        for B, b in removals:
+        for B, b in removals.items():
             self.curr_domains[B].append(b)
    
     def is_solution(self, assignment):
         if not assignment:
             return False
-        return (len(assignment) == len(self.variables) and all(self.conflicted_num(assignment, variables, assignment[variables]) == 0 for variables in self.variables))  
+        return len(assignment)==len(self.variables)  
+    
+    def apply_removals(self,removals):
+        for variable, values in removals.items():
+            for value in values:
+                self.curr_domains[variable].remove(value)
             
     @classmethod
     def from_file(cls, filename):
