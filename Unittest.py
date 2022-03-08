@@ -1,12 +1,10 @@
 import unittest
-
 from search import backtrack_search, no_inf_backtrack_search
 from heuristics import mrv, lcv, original_value_order, unordered_domain_values
 from inferences import forward_check, maintain_arc_cons, revise, ac3
 from coloringCSP import GraphColoringCSP
 from fileParser import file_parse
 from collections import defaultdict
-import os
 
 class FileParserUnitTests(unittest.TestCase):
     def fileParseUnitTest(self):
@@ -285,6 +283,7 @@ class TestBacktracking(unittest.TestCase):
                 self.assertIsNotNone(solution, f"Search returned no solution for file {file}, although a solution exists")
                 self.assertTrue(csp.is_solution(solution))
 if __name__ == "__main__":
-    unittest.main()
+    test = unittest.main()
+    test.test_backtracking_search_mac
     
     

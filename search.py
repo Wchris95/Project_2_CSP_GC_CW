@@ -1,6 +1,7 @@
 from heuristics import lcv, mrv, original_value_order, unordered_domain_values
 from inferences import maintain_arc_cons, forward_check
 from collections import defaultdict
+from coloringCSP import GraphColoringCSP
 """
 Follows AIMA implementation of backtrack search
 Within this module we want to bring together the backtrack search from csp
@@ -45,3 +46,10 @@ def no_inf_backtrack_search(csp, assignment, value_heuristic, domain_heuristic):
               if result is not None:
                   return result
     return None
+if __name__ == "__main__":
+    files = ["gc_78317103208800.txt"]
+    no_solution = "gc_78317097930401.txt"
+    for file in files:
+        csp = GraphColoringCSP.from_file(file)
+        solution = backtrack_search(csp, assignment={},inference=forward_check)
+        print(f"{file} ->{solution}\n")

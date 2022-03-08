@@ -16,13 +16,17 @@ def forward_check(csp, variable, value, assignment, removals):
     """
     removals = defaultdict(list)
     value = assignment[variable]
+    domainCt = 0
     for neighbor in csp.neighbors[variable]:
         if neighbor not in assignment:
             for domain_val in csp.curr_domains[neighbor]:
                 if not csp.check_constraints(variable, value, neighbor, domain_val):
                     removals[neighbor].append(value)
             #check if the domain is empty
-            if len([value for value in csp.curr_domains[variable] if not value in removals[variable]])==0:
+            for value in csp.domains[variable]:
+                if not value in removals[variable]:
+                    domainCt +=1
+            if domainCt == 0:
                 for_check=False
                 return removals, for_check
     for_check = True
