@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 
 class file_parse:
     def __init__(self, filename: str)->None:
@@ -9,36 +10,35 @@ class file_parse:
     def parse_file(self):
         edges = []
         colors = 0
-        variables = list()
+        vertices = list()
+        neighbors = defaultdict(set)
         data_dict = {}
-        with open(filename,"r") as file:
-            for line in file:
-                if line.split()[0].strip() == '#':
-                    continue
-                if line.lower().split()[0].strip() == 'colors':
-                    colors = int(line.split()[-1].strip())
-                #if tuple(sorted(int(b) for b in line.split(","))) not in edges:
-                else:
-                    tempVar = tuple(sorted(int(b) for b in line.split(",")))
-                    if tempVar not in edges:                      
-                        edges.append(tuple(sorted(int(b) for b in line.split(","))))
-                    else:
-                        continue
-                #else:
-                 #   continue
+        with open(self.filename,"r") as file:
+           for line in file:
+               if line.split() == [] or line.split()[0] == '#':
+                   continue
+               if line.lower().split()[0] == 'colors':
+                   colors = int(line.split()[-1].strip())
+               #set a tempvar to parse the edges if the edge is already in the edges list ignore the edge
+               else:
+                   tempVar = tuple(sorted(int(b.strip()) for b in line.strip().split(',')))
+                   if tempVar not in edges:                      
+                       edges.append(tempVar)
+                   else:
+                       continue
+               #else:
+                #   continue
         for edge in edges:
-            if edge[0] not in variables:
-                variables.append(edge[0])
-            if edge[1] not in variables:
-                variables.append(edge[1])
+            neighbors[edge[0]].add(edge[1])
+            neighbors[edge[1]].add(edge[0])
+            if edge[0] not in vertices:
+                vertices.append(edge[0])
+            if edge[1] not in vertices:
+               vertices.append(edge[1])
             else:
-                continue
+               continue
         data_dict["colors"] = colors
         data_dict["edges"] = edges
-        data_dict["variables"] = variables
+        data_dict["vertices"] = vertices
+        data_dict["neighbors"] = neighbors
         return data_dict
-    
-if  __name__ == "__main__":
-    filename = "test file.txt"
-    fileData = file_parse(filename)
-    print(fileData.parse_file())
