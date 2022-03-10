@@ -4,9 +4,7 @@ from search import backtrack_search, no_inf_backtrack_search
 from heuristics import mrv, lcv, original_value_order, unordered_domain_values
 from inferences import forward_check, maintain_arc_cons
 from coloringCSP import GraphColoringCSP
-import json
 import argparse 
-import sys
 
 def solve(filepath,value_heuristics, domain_heuristics):
     csp = GraphColoringCSP.from_file(filepath)
@@ -23,13 +21,13 @@ if __name__ == "__main__":
                         default='mrv'
                         )
     parser.add_argument('-value','--valHeuristic',
-                    choices=['lcv', 'unordered'],
+                    choices=['lcv', 'orignal_order'],
                     default="lcv")
     parser.add_argument('-inf','--inference',
                     choices=['maintain_arc_cons', 'forward_check','None'],
                     default="forward_check")
     varHeuristicDict = {'mrv':mrv,'original value order':original_value_order}
-    valueHeuristicDict = {'lcv':lcv, 'unordered_domain_values':unordered_domain_values}
+    valueHeuristicDict = {'lcv':lcv, 'orignal_order':unordered_domain_values}
     inferenceDict = {'maintain_arc_cons':maintain_arc_cons,'forward_check':forward_check, 'None':None}
     arguments = parser.parse_args()
     varHeuristic = varHeuristicDict.get(arguments.varHeuristic)
@@ -45,9 +43,15 @@ if __name__ == "__main__":
     for file in files:
         csp = GraphColoringCSP.from_file(file)
         if inference == None:
+            start_time = time()
             solution = no_inf_backtrack_search(csp,assignment={},value_heuristic=varHeuristic,domain_heuristic=valHeuristic)
+            end_time = time()
+            print(f'Search Time: {end_time-start_time}')
         else:
+            start_time = time()
             solution = backtrack_search(csp, assignment={}, value_heuristic=varHeuristic,domain_heuristic=valHeuristic,inference=inference)
+            end_time = time()
+            print(f'Search Time: {end_time-start_time}')
         if solution:
             print(f"\nSolution for {file} {solution}\n")
         else:

@@ -92,7 +92,8 @@ class GraphColoringCSP:
         """Rule out var = value"""
         self.curr_domains[var].remove(val)
         if removals is not None:
-            removals.append(var,val)
+            removals[var].append(val)
+        return removals
     
     def conflicted_num(self, current, var, val):
         count = 0

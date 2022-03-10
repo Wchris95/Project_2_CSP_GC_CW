@@ -16,17 +16,13 @@ def forward_check(csp, variable, value, assignment, removals):
     """
     removals = defaultdict(list)
     value = assignment[variable]
-    domainCt = 0
     for neighbor in csp.neighbors[variable]:
         if neighbor not in assignment:
             for domain_val in csp.curr_domains[neighbor]:
                 if not csp.check_constraints(variable, value, neighbor, domain_val):
-                    removals[neighbor].append(value)
+                    csp.prune(neighbor, domain_val, removals)
             #check if the domain is empty
-            for value in csp.domains[variable]:
-                if not value in removals[variable]:
-                    domainCt +=1
-            if domainCt == 0:
+            if not csp.curr_domains[neighbor]:
                 for_check=False
                 return removals, for_check
     for_check = True
@@ -38,13 +34,13 @@ def dom_j_up(csp, queue):
 def ac3(csp,removals,queue=None):
     removals=defaultdict(list)
     if queue is None:
-        queue = {(current_var,neighbor_var) for current_var in csp.variables for neighbor_var in csp.neighbors[current_var]}
+        queue = [(current_var,neighbor_var) for current_var in csp.variables for neighbor_var in csp.neighbors[current_var]]
     while queue:
         (value1, value2) = queue.pop()
         revised, rev_bool = revise(csp, value1, value2)
         if rev_bool:
                 removals[value1].extend(revised)
-                if len([value for value in csp.curr_domains[value1] if not value in removals[value1]]) == 0:
+                if not csp.curr_domains[value1]:
                     arc3_bool = False
                     return removals, arc3_bool
                 for neighbor_var2 in csp.neighbors[value1]:
@@ -72,4 +68,4 @@ def revise(csp, Xi, Xj):
     return revised, revise_bool;
 
 def maintain_arc_cons(csp, variable,value, assignment, removals, constraint_propgation=ac3):
-    return constraint_propgation(csp,removals,queue={(variable, var_neigh) for var_neigh in csp.neighbors[variable]})
+    return constraint_propgation(csp,removals,queue=[(variable, var_neigh) for var_neigh in csp.neighbors[variable]])

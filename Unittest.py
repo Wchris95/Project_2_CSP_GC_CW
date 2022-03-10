@@ -39,36 +39,36 @@ class FileParserUnitTests(unittest.TestCase):
 class testColoringCsp(unittest.TestCase):
     def test_count_conflicts(self):
         assignment = {
-            1: 0,
-            2: 2
+            0: 0,
+            1: 2
         }
         csp = GraphColoringCSP.from_file("simple_test.txt")
         for variable in assignment:
             csp.assign(variable, assignment[variable],assignment)
         #there should be one conflict as within the text file one neighbor is 1,2
-        conflicts = csp.conflicted_num(assignment, 3, 2)
+        conflicts = csp.conflicted_num(assignment, 2, 2)
         self.assertEqual(conflicts, 1, f"Expected 1 conflict, got {conflicts}")
 
 class testHeuristics(unittest.TestCase):
     def test_lcv(self):
         assignment = {
-            1: 0,
-            2: 2
+            0: 0,
+            1: 2
         }
         csp = GraphColoringCSP.from_file("simple_test.txt")
         for variable, value in assignment.items():
             csp.suppose(variable, value)
-        self.assertEqual(lcv(csp,3,assignment)[0],0,"Value should be 0")
+        self.assertEqual(lcv(csp,2,assignment)[0],1,"Value should be 0")
     
     def test_mrv(self):
         csp = GraphColoringCSP.from_file("simple_test.txt")
         assignment = {}
         variable = mrv(csp,assignment)
-        self.assertEqual(variable, 1, f'MRV Test failed: value should be 1, value: {variable}')
+        self.assertEqual(variable, 2, f'MRV Test failed: value should be 2, value: {variable}')
 
 class testInferenceAc3(unittest.TestCase):
     def test_forward_check(self):
-        csp = GraphColoringCSP.from_file("gc_78317103208800.txt")
+        csp = GraphColoringCSP.from_file("simple_test.txt")
         assignment = {}
         removals=defaultdict(list)
         variable = 0
@@ -77,113 +77,63 @@ class testInferenceAc3(unittest.TestCase):
         removals = csp.suppose(variable,value)
         removals, check_removals = forward_check(csp, variable=variable,value=value, assignment=assignment,removals=removals)
         self.assertTrue(check_removals)
-        csp.apply_removals(removals)
         """domains should be 
-        {0 : [0]
-        1 : [1, 2, 3]
-        2 : [1, 2, 3]
-        3 : [0, 1, 2, 3]
-        4 : [1, 2, 3]
-        5 : [1, 2, 3]
-        6 : [1, 2, 3]
-        7 : [0, 1, 2, 3]
-        8 : [0, 1, 2, 3]
-        9 : [0, 1, 2, 3]
-        10 : [0, 1, 2, 3]
-        11 : [0, 1, 2, 3]
-        12 : [0, 1, 2, 3]
-        13 : [0, 1, 2, 3]
-        14 : [0, 1, 2, 3]}"""
-        expected_domains = {0 : [0],
-        1 : [1, 2, 3],
-        2 : [1, 2, 3],
-        3 : [0, 1, 2, 3],
-        4 : [1, 2, 3],
-        5 : [1, 2, 3],
-        6 : [1, 2, 3],
-        7 : [0, 1, 2, 3],
-        8 : [0, 1, 2, 3],
-        9 : [0, 1, 2, 3],
-        10 : [0, 1, 2, 3],
-        11 : [0, 1, 2, 3],
-        12 : [0, 1, 2, 3],
-        13 : [0, 1, 2, 3],
-        14 : [0, 1, 2, 3]}
-        self.assertDictEqual(csp.curr_domains, expected_domains, "Unexpected domain values in forward checking")
+        {0: [0]
+         1: [1,2]
+         2: [1,2]
+         3: [0,1,2]}"""
+        expected_domains = {0: [0],
+         1: [1,2],
+         2: [1,2],
+         3: [0,1,2]}
+        self.assertDictEqual(csp.curr_domains, expected_domains, "Domain values do not match")
 
-        variable = 3
-        value = 1
+        variable = 1
+        value = 2
+        removals=defaultdict(list)
         csp.assign(variable, value, assignment)
         removals = csp.suppose(variable,value)
         removals, check_removals = forward_check(csp, variable=variable,value=value,  assignment=assignment,removals=removals)
         self.assertTrue(check_removals)
-        csp.apply_removals(removals)
         """
-        domains should be {0 : [0]
-        1 : [1, 2, 3]
-        2 : [2, 3]
-        3 : [1]
-        4 : [2, 3]
-        5 : [2, 3]
-        6 : [1, 2, 3]
-        7 : [0, 2, 3]
-        8 : [0, 1, 2, 3]
-        9 : [0, 1, 2, 3]
-        10 : [0, 1, 2, 3]
-        11 : [0, 2, 3]
-        12 : [0, 1, 2, 3]
-        13 : [0, 1, 2, 3]
-        14 : [0, 2, 3]}
+        domains should be 
+        {0: [0]
+         1: [2]
+         2: [1]
+         3: [0,1,2]}
         """
-        expected_domains = {0 : [0],
-        1 : [1, 2, 3],
-        2 : [2, 3],
-        3 : [1],
-        4 : [2, 3],
-        5 : [2, 3],
-        6 : [1, 2, 3],
-        7 : [0, 2, 3],
-        8 : [0, 1, 2, 3],
-        9 : [0, 1, 2, 3],
-        10 : [0, 1, 2, 3],
-        11 : [0, 2, 3],
-        12 : [0, 1, 2, 3],
-        13 : [0, 1, 2, 3],
-        14 : [0, 2, 3]}
-        self.assertDictEqual(csp.curr_domains, expected_domains, "Unexpected domain values in forward checking")
+        expected_domains = {0: [0],
+         1: [2],
+         2: [1],
+         3: [0,1,2]}
+        self.assertDictEqual(csp.curr_domains, expected_domains, "Domain values do not match")
         """
         THIS PART SHOULD FAIL
+        {0: [0]
+         1: [2]
+         2: []
+         3: [1}
         """
-        variable = 4
+        variable = 3
         value = 1
+        removals=defaultdict(list)
         csp.assign(variable, value, assignment)
         removals = csp.suppose(variable,value)
-        removals, check_removals = forward_check(csp, variable=variable,value=value, assignment=assignment,removals=removals)
+        removals, check_removals = forward_check(csp, variable=variable,value=value, assignment=assignment,removals=removals)      
+        self.assertFalse(check_removals)
         
-        self.assertTrue(check_removals)
     def test_revise(self):
-        csp = GraphColoringCSP.from_file("gc_78317103208800.txt")
+        csp = GraphColoringCSP.from_file("simple_test.txt")
         assignment = {}
         removal = defaultdict(list)
         variable = 0
         value = 0
         csp.assign(variable, value, assignment)
         removals=csp.suppose(variable,value)
-        expected_domains = {0 : [0],
-        1 : [1, 2, 3],
-        2 : [1, 2, 3],
-        3 : [0, 1, 2, 3],
-        4 : [1, 2, 3],
-        5 : [1, 2, 3],
-        6 : [1, 2, 3],
-        7 : [0, 1, 2, 3],
-        8 : [0, 1, 2, 3],
-        9 : [0, 1, 2, 3],
-        10 : [0, 1, 2, 3],
-        11 : [0, 1, 2, 3],
-        12 : [0, 1, 2, 3],
-        13 : [0, 1, 2, 3],
-        14 : [0, 1, 2, 3]}
+        expected_domains = {0: [0],
+         1: [1,2],
+         2: [1,2],
+         3: [0,1,2]}
         # Loop through the neighbors to revise as needed
         queue = [(x, variable) for x in csp.neighbors[variable]]
         for vertex1, vertex2 in queue:
@@ -192,31 +142,21 @@ class testInferenceAc3(unittest.TestCase):
         self.assertDictEqual(csp.curr_domains, expected_domains)
     
     def test_ac3(self):
-        csp = GraphColoringCSP.from_file("gc_78317103208800.txt")
+        csp = GraphColoringCSP.from_file("simple_test.txt")
         assignment = {}
         variable = 0
         value = 0
         csp.assign(variable, value, assignment)
         removals = csp.suppose(variable, value)
-        expected_domains = {0 : [0],
-        1 : [1, 2, 3],
-        2 : [1, 2, 3],
-        3 : [0, 1, 2, 3],
-        4 : [1, 2, 3],
-        5 : [1, 2, 3],
-        6 : [1, 2, 3],
-        7 : [0, 1, 2, 3],
-        8 : [0, 1, 2, 3],
-        9 : [0, 1, 2, 3],
-        10 : [0, 1, 2, 3],
-        11 : [0, 1, 2, 3],
-        12 : [0, 1, 2, 3],
-        13 : [0, 1, 2, 3],
-        14 : [0, 1, 2, 3]}
+        expected_domains = {0: [0],
+         1: [1,2],
+         2: [1,2],
+         3: [0,1,2]}
         queue = [(x, variable) for x in csp.neighbors[variable]]
         removals,ac3_bool = ac3(csp,removals,queue)
         csp.apply_removals(removals)
         self.assertDictEqual(csp.curr_domains, expected_domains)
+        
 class TestBacktracking(unittest.TestCase):
     """
     Unit tests for backtracking search. These tests are executed on the test files (more than just the Australia example)
@@ -284,6 +224,5 @@ class TestBacktracking(unittest.TestCase):
                 self.assertTrue(csp.is_solution(solution))
 if __name__ == "__main__":
     test = unittest.main()
-    test.test_backtracking_search_mac
     
     
