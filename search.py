@@ -21,7 +21,6 @@ def backtrack_search(csp, assignment, value_heuristic=mrv, domain_heuristic=lcv,
             if infer_check and csp.is_consistent(variable, assignment):
                 #instead of applying the removals within the inferences 
                 #applying it within the search helps track it easier
-                csp.apply_removals(removals)
                 result = backtrack_search(csp, assignment, value_heuristic, domain_heuristic, inference)
                 if result is not None:
                     return result
@@ -29,30 +28,6 @@ def backtrack_search(csp, assignment, value_heuristic=mrv, domain_heuristic=lcv,
             csp.unassign(variable, assignment)
     return None
 
-def mac_backtrack_search(csp, assignment, value_heuristic=mrv, domain_heuristic=lcv,inference = maintain_arc_cons):
-    if csp.is_solution(assignment):
-        return assignment
-    variable = value_heuristic(csp, assignment)
-    for value in domain_heuristic(csp, variable, assignment):
-        if csp.conflicted_num(assignment, variable, value) == 0:
-            csp.assign(variable, value, assignment)
-            removals = csp.suppose(variable, value)
-            removals, infer_check = inference(csp, variable, value, assignment, removals)
-            if infer_check and csp.is_consistent(variable, assignment):
-                #instead of applying the removals within the inferences 
-                #applying it within the search helps track it easier
-                for variable, values in removals.items():
-                    for value in values:
-                        if value not in csp.curr_domains[variable]:
-                            continue
-                        else:
-                            csp.curr_domains[variable].remove(value)
-                result = backtrack_search(csp, assignment, value_heuristic, domain_heuristic, inference)
-                if result is not None:
-                    return result
-                csp.restore(removals)
-            csp.unassign(variable, assignment)
-    return None
     
 def no_inf_backtrack_search(csp, assignment, value_heuristic, domain_heuristic):
     if csp.is_solution(assignment):
