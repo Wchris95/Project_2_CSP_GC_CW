@@ -7,7 +7,7 @@ from collections import defaultdict
 
 class GraphColoringRestraint:
     """
-    Subclass of gen_constraint from csp to set up constraints
+    GraphColoringRestraint class to set up constraints
     variables -> the vertices given to us from the file parser
     domains -> our colors set as a list
     assignments -> set up as a dict where vertex is the key and color is value
@@ -26,8 +26,9 @@ class GraphColoringRestraint:
         #if both have been assigned check that both are not the same color
         return assignment[self.vertex1] != assignment[self.vertex2]
 
+class GraphColoringCSP:
     """
-    Subclass of csp to form graph coloring csp
+    GraphColoringCSP
     inputs:
         edges -> Edges we obtain from our text file
         vertices -> the variables we create from the file parser module
@@ -37,8 +38,7 @@ class GraphColoringRestraint:
         We don't have to worry about repeating edges such as (1,5) (5,1) as
         we filter these out within the file_parse module
     """
-class GraphColoringCSP:
-    def __init__(self, vertices: set, edges: Union[List[Tuple[int, int]], Set[Tuple[int, int]]], colors: int, neighbors:dict=None) -> None:
+    def __init__(self, vertices: set, edges: Union[list, set], colors: int, neighbors:dict=None) -> None:
         self.edges = edges     
         self.constraints = defaultdict(list)
         self.colors = colors
@@ -71,6 +71,15 @@ class GraphColoringCSP:
             del assignment[var]
  
     def is_consistent(self, variable, assignment: dict)-> bool:
+        #all(con.holds(assignment)
+                   #for con in self.constraints
+                   #if all(v in assignment for v in con.scope))
+        """
+        Check all constraints 
+        if the constraint is satisfied by checking if each constraint(vertex1,vertex2)
+        has been assigned yet if both of them have been assigned then check that they
+        are not the same color
+        """
         for constraint in self.constraints[variable]:
             if not constraint.is_satisfied(assignment):
                 return False
@@ -95,14 +104,18 @@ class GraphColoringCSP:
             removals[var].append(val)
         return removals
     
-    def conflicted_num(self, current, var, val):
-        count = 0
-        temp_current = current.copy()
-        temp_current[var] = val
-        for v in self.neighbors[var]:
-            if v in current and not self.is_consistent(v, temp_current):
-                count+=1
-        return count
+    def conflicted_num(self, assignment, var, val):
+        #def conflict(var2):
+           #return var2 in assignment and not self.constraints(var, val, var2, assignment[var2])
+
+        #return count(conflict(v) for v in self.neighbors[var])
+        assignment_check = assignment.copy()
+        assignment_check[var] = val
+        conflict_count = 0
+        for neighbor in self.neighbors[var]:
+            if neighbor in assignment and not self.is_consistent(neighbor, assignment):
+                conflict_count+=1
+        return conflict_count
       
     def restore(self, removals):
         """Undo a supposition and all inferences on it"""
@@ -110,9 +123,12 @@ class GraphColoringCSP:
             self.curr_domains[B].append(b)
    
     def is_solution(self, assignment):
+        #we want to check if the assignment is empty first
         if not assignment:
             return False
-        return len(assignment)==len(self.variables)  
+        return (len(assignment) == len(self.variables)
+                and all(self.conflicted_num(assignment,variables, assignment[variables]) == 0
+                        for variables in self.variables))
     
     def apply_removals(self,removals):
         for variable, values in removals.items():

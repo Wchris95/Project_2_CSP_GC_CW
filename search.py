@@ -27,7 +27,6 @@ def backtrack_search(csp, assignment, value_heuristic=mrv, domain_heuristic=lcv,
                 csp.restore(removals)
             csp.unassign(variable, assignment)
     return None
-
     
 def no_inf_backtrack_search(csp, assignment, value_heuristic, domain_heuristic):
     if csp.is_solution(assignment):
@@ -45,10 +44,12 @@ def no_inf_backtrack_search(csp, assignment, value_heuristic, domain_heuristic):
               if result is not None:
                   return result
     return None
-if __name__ == "__main__":
-    files = ["gc_78317103208800.txt"]
-    no_solution = "gc_78317097930401.txt"
-    for file in files:
-        csp = GraphColoringCSP.from_file(file)
-        solution = backtrack_search(csp, assignment={},inference=maintain_arc_cons)
-        print(f"{file} ->{solution}\n")
+
+"""if __name__ == "__main__":
+    csp = GraphColoringCSP.from_file("gc_78317097930400.txt")
+    for_solution = backtrack_search(csp, assignment={},inference=forward_check)
+    mac_solution = backtrack_search(csp, assignment={},inference=maintain_arc_cons)
+    print(f"solution forward: {for_solution}\n")
+    print(f"solution mac: {mac_solution}\n")
+    print(csp.is_solution(mac_solution))"""
+    

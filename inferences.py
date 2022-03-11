@@ -37,7 +37,7 @@ def ac3(csp,removals,queue=None):
         queue = [(current_var,neighbor_var) for current_var in csp.variables for neighbor_var in csp.neighbors[current_var]]
     while queue:
         (value1, value2) = queue.pop()
-        revised, rev_bool = revise(csp, value1, value2)
+        revised, rev_bool = revise(csp, value1, value2,removals)
         if rev_bool:
                 removals[value1].extend(revised)
                 if not csp.curr_domains[value1]:
@@ -49,7 +49,7 @@ def ac3(csp,removals,queue=None):
     arc3_bool = True
     return removals, arc3_bool;
             
-def revise(csp, Xi, Xj):
+def revise(csp, Xi, Xj, removals):
     revise_bool = False
     revised = []
     for x in csp.curr_domains[Xi]:
@@ -60,6 +60,7 @@ def revise(csp, Xi, Xj):
            #check the if Xi and Xj conflict if this is true the value is exists and does not conflict
            if csp.check_constraints(Xi, x, Xj, y):
                conflict = True;
+           if conflict:
                break
         #else if it conflicts we want to prune the value and add it to our removal val
        if not conflict:

@@ -129,7 +129,7 @@ class testInferenceAc3(unittest.TestCase):
         variable = 0
         value = 0
         csp.assign(variable, value, assignment)
-        removals=csp.suppose(variable,value)
+        removal=csp.suppose(variable,value)
         expected_domains = {0: [0],
          1: [1,2],
          2: [1,2],
@@ -137,7 +137,7 @@ class testInferenceAc3(unittest.TestCase):
         # Loop through the neighbors to revise as needed
         queue = [(x, variable) for x in csp.neighbors[variable]]
         for vertex1, vertex2 in queue:
-            revised, revise_bool = revise(csp, vertex1, vertex2)
+            revised, revise_bool = revise(csp, vertex1, vertex2,removal)
             csp.apply_removals({vertex1:revised})
         self.assertDictEqual(csp.curr_domains, expected_domains)
     
@@ -158,14 +158,9 @@ class testInferenceAc3(unittest.TestCase):
         self.assertDictEqual(csp.curr_domains, expected_domains)
         
 class TestBacktracking(unittest.TestCase):
-    """
-    Unit tests for backtracking search. These tests are executed on the test files (more than just the Australia example)
-    """
     def test_backtracking_search_no_inference(self):
         """
-        Unit test for backtracking search without inference.
-        This is implemented in a slightly different way via the 
-        backtracking_search_no_inference method
+        Backtracking with using original_value_order and lcv
         """
         files =["gc_78317094521100.txt",
         "gc_78317097930400.txt",
@@ -176,7 +171,7 @@ class TestBacktracking(unittest.TestCase):
         no_solution = "gc_78317097930401.txt"
         for file in files:
             csp = GraphColoringCSP.from_file(file)
-            solution = no_inf_backtrack_search(csp, assignment={},value_heuristic=mrv,domain_heuristic=unordered_domain_values) 
+            solution = no_inf_backtrack_search(csp, assignment={}, value_heuristic=mrv, domain_heuristic=lcv) 
             if file == no_solution:
                 self.assertIsNone(solution)
             else:
@@ -202,9 +197,6 @@ class TestBacktracking(unittest.TestCase):
                 self.assertTrue(csp.is_solution(solution))
     
     def test_backtracking_search_mac(self):
-        """
-        Unit test for backtracking search with maintaining arc consistency using ac3
-        """
         files = [
             "gc_78317094521100.txt",
             "gc_78317097930400.txt",
@@ -217,10 +209,10 @@ class TestBacktracking(unittest.TestCase):
         for file in files:
             csp = GraphColoringCSP.from_file(file)
             solution = backtrack_search(csp, assignment={},inference=maintain_arc_cons)
-            if file == no_solution:
-                self.assertIsNone(solution, f"Search returned solution for file {file}, although no solution exists")
+            if file in no_solution:
+                self.assertIsNone(solution, f"No solution should exist: {file}")
             else:
-                self.assertIsNotNone(solution, f"Search returned no solution for file {file}, although a solution exists")
+                self.assertIsNotNone(solution, f"Error no solution found: {file} ")
                 self.assertTrue(csp.is_solution(solution))
 if __name__ == "__main__":
     test = unittest.main()

@@ -29,6 +29,8 @@ def mrv(csp,assignment):
     with the tie breaking rule.
     We want to select the variable with the fewest remaining legal values
     """
+    #return argmin_random_tie([v for v in csp.variables if v not in assignment],
+                             #key=lambda var: num_legal_values(csp, var, assignment))
     unassign_min_rem_val=[]
     for variable in csp.variables:
         if variable not in assignment:
