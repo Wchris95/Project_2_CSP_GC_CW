@@ -113,7 +113,7 @@ class GraphColoringCSP:
         assignment_check[var] = val
         conflict_count = 0
         for neighbor in self.neighbors[var]:
-            if neighbor in assignment and not self.is_consistent(neighbor, assignment):
+            if neighbor in assignment and not self.is_consistent(neighbor, assignment_check):
                 conflict_count+=1
         return conflict_count
       
