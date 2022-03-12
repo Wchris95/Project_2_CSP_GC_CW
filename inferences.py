@@ -55,15 +55,15 @@ def revise(csp, Xi, Xj, removals):
     for x in csp.curr_domains[Xi]:
     # If Xi=x conflicts with Xj=y for every possible y, eliminate Xi=x
     # if all(not csp.constraints(Xi, x, Xj, y) for y in csp.curr_domains[Xj]):
-       conflict = False
+       no_conflict = False
        for y in csp.curr_domains[Xj]:
            #check the if Xi and Xj conflict if this is true the value is exists and does not conflict
            if csp.check_constraints(Xi, x, Xj, y):
-               conflict = True;
-           if conflict:
+               no_conflict = True;
+           if no_conflict:
                break
         #else if it conflicts we want to prune the value and add it to our removal val
-       if not conflict:
+       if not no_conflict:
            revise_bool = True   
            revised.append(x)
     return revised, revise_bool;
